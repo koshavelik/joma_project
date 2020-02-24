@@ -1,0 +1,66 @@
+.jumbotron {
+    text-align: center;
+}
+
+tbody {
+    height: 500px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.count {
+    display: flex;
+}
+
+.card + .card {
+    margin-top: 2px;
+}
+
+.card-header {
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.card-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+}
+
+.total-price {
+    height: calc(1.5em + .75rem + 6px);
+    padding: 4px;
+}
+
+.delete-button {
+    padding: 0;
+}
+
+.delete-button img {
+    height: 30px;
+    width: 30px;
+}
+
+.cart {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.complete-order {
+    display: none;
+    margin-top: 20px;
+}
+
+.complete-order-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-price-wrapper {
+    font-weight: bold;
+    font-size: 20px;
+}
