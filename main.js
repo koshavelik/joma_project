@@ -1,3 +1,7 @@
+const imageLink = 'http://www.joma-sport.net/getProductImage.php?ProductCode=';
+const apiUrl = 'https://gitu3ccmbk.execute-api.us-east-2.amazonaws.com/default/test2';
+const apiKey = 'Ilb4sk22bq8TDrxxZ9FNL82MMQ2lqgLv6UuU3NgM';
+
 let products = {};
 let selectedProducts = {};
 
@@ -7,6 +11,20 @@ $(() => {
     });
 
     $('#search_field').on('keyup', filterValues);
+
+    const toTopBtn = $('.top-button');
+    $(window).on('scroll', () => {
+        if ($(window).scrollTop() > 300) {
+            toTopBtn.addClass('show');
+        } else {
+            toTopBtn.removeClass('show');
+        }
+    });
+
+    toTopBtn.on('click', function(e) {
+        e.preventDefault();
+        $('html, body').animate({scrollTop:0}, '300');
+    });
 });
 
 function countChange(id, $price) {
@@ -116,9 +134,8 @@ function fetchData() {
         const jsonData = utils.xmlToJson(response);
 
         displayData(jsonData);
-        console.log({jsonData});
         jsonData['Catalog'].item.forEach((item) => {
-            products[item.id] = item;
+            products[item.ean] = item;
         });
     }).catch(e => {
         alert("An error occurred while processing XML file");
@@ -132,13 +149,17 @@ function displayData(data) {
     data['Catalog'].item.forEach((item) => {
         const $button = $('<button class="btn btn-secondary">buy</button>');
         const $buttonTd = $('<td>');
+        const $imageTd = $('<td>');
 
-        $button.on('click', addToCard(item.id));
+        $button.on('click', addToCard(item.ean));
         $buttonTd.append($button);
 
+        const $image = $(`<img class="row-image" src="${imageLink}${item.art}">`);
+        $imageTd.append($image)
 
         const $tr = $('<tr>').append(
-            $('<td>').text(item.name),
+            $imageTd,
+            $('<td>').html(item.name),
             $('<td>').text(item.size),
             $('<td>').text(item.art),
             $('<td>').text(item.ostatok),
@@ -174,6 +195,29 @@ function filterValues() {
     });
 }
 
+function sendOrder() {
+    const order = Object.keys(products).map((key) => {
+        return {
+            "id": key,
+            "count": products[key]
+        }
+    });
 
-
-
+    $.ajax({
+        type: "POST",
+        url: apiUrl,
+        headers: {
+            'x-api-key': apiKey
+        },
+        data: {
+            "id": "01124",
+            order
+        },
+    }).then(response => {
+        console.log('success');
+        products = {};
+    }).catch(e => {
+        alert("An error occurred while send order");
+        console.log("Sending order Failed: ", e);
+    });
+}
