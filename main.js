@@ -196,28 +196,31 @@ function filterValues() {
 }
 
 function sendOrder() {
-    const order = Object.keys(products).map((key) => {
+    const order = Object.keys(selectedProducts).map((key) => {
         return {
             "id": key,
-            "count": products[key]
+            "count": selectedProducts[key]
         }
     });
+
+    const request = {
+        "id": "01124",
+        order
+    };
 
     $.ajax({
         type: "POST",
         url: apiUrl,
+        crossDomain: true,
         headers: {
-            'x-api-key': apiKey
+            'x-api-key': apiKey,
+            'Content-Type': 'application/json',
         },
-        data: {
-            "id": "01124",
-            order
-        },
+        data: JSON.stringify(request),
     }).then(response => {
         console.log('success');
         products = {};
     }).catch(e => {
-        alert("An error occurred while send order");
         console.log("Sending order Failed: ", e);
     });
 }
