@@ -1,9 +1,14 @@
 const imageLink = 'http://www.joma-sport.net/getProductImage.php?ProductCode=';
 const apiUrl = 'https://gitu3ccmbk.execute-api.us-east-2.amazonaws.com/default/test2';
 const apiKey = 'Ilb4sk22bq8TDrxxZ9FNL82MMQ2lqgLv6UuU3NgM';
+const clients = {
+    'sport-belarus@tut.by': '00000018',
+    'k.baranovskiy@mail.ru': '007'
+};
 
 let products = {};
 let selectedProducts = {};
+let clientId = '';
 
 $(() => {
     $('#fetch_data').on('click', () => { // Fetching xmnl file
@@ -196,6 +201,10 @@ function filterValues() {
 }
 
 function sendOrder() {
+    if (!validate()) {
+        return false
+    }
+
     const order = Object.keys(selectedProducts).map((key) => {
         return {
             "id": key,
@@ -204,9 +213,11 @@ function sendOrder() {
     });
 
     const request = {
-        "id": "01124",
+        "id": clientId,
         order
     };
+
+    $('#orderModal').modal('hide');
 
     $.ajax({
         type: "POST",
@@ -223,4 +234,20 @@ function sendOrder() {
     }).catch(e => {
         console.log("Sending order Failed: ", e);
     });
+}
+
+function validate() {
+    const $email = $('#email-field');
+    const emailValue = $email.val();
+
+    if (emailValue && clients[emailValue]) {
+        $email.removeClass('is-invalid');
+        clientId = clients[emailValue];
+
+        return true
+    }
+
+    $email.addClass('is-invalid');
+
+    return false;
 }

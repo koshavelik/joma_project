@@ -97,12 +97,21 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input
-                            type="text"
-                            class="form-control"
-                            id="email-field"
-                            placeholder="Enter email"
-                    >
+                    <form class="needs-validation" novalidate>
+                        <div class="input-group">
+                            <input
+                                    type="text"
+                                    class="form-control"
+                                    id="email-field"
+                                    placeholder="Enter email"
+                                    required
+                            >
+                            <div class="invalid-feedback">
+                                Please enter valid email.
+                            </div>
+                        </div>
+                    </form>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
