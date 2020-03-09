@@ -8,7 +8,7 @@ const clients = {
 
 let products = {};
 let selectedProducts = {};
-let clientId = '';
+let clientEmail = '';
 
 $(() => {
     $('#fetch_data').on('click', () => { // Fetching xmnl file
@@ -42,7 +42,7 @@ function countChange(id, $price) {
         } else {
             const totalPrice = value * products[id].price;
 
-            selectedProducts[id] = totalPrice;
+            selectedProducts[id] = value;
             $target.removeClass('is-invalid');
             $price.text(totalPrice);
         }
@@ -207,13 +207,14 @@ function sendOrder() {
 
     const order = Object.keys(selectedProducts).map((key) => {
         return {
-            "id": key,
+            'id': key,
             "count": selectedProducts[key]
         }
     });
 
     const request = {
-        "id": clientId,
+        'id': clients[clientEmail],
+        'email': clientEmail,
         order
     };
 
@@ -229,7 +230,6 @@ function sendOrder() {
         },
         data: JSON.stringify(request),
     }).then(response => {
-        console.log('success');
         products = {};
     }).catch(e => {
         console.log("Sending order Failed: ", e);
@@ -242,7 +242,7 @@ function validate() {
 
     if (emailValue && clients[emailValue]) {
         $email.removeClass('is-invalid');
-        clientId = clients[emailValue];
+        clientEmail = emailValue;
 
         return true
     }
