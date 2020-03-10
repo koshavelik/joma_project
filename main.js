@@ -15,9 +15,10 @@ $(() => {
         fetchData();
     });
 
-    $('#search_field').on('keyup', filterValues);
+    $('#search_field').on('keyup', utils.debounce(filterValues, 300));
 
     const toTopBtn = $('.top-button');
+
     $(window).on('scroll', () => {
         if ($(window).scrollTop() > 300) {
             toTopBtn.addClass('show');
@@ -138,41 +139,44 @@ function fetchData() {
     }).then(response => {
         const jsonData = utils.xmlToJson(response);
 
-        displayData(jsonData);
         jsonData['Catalog'].item.forEach((item) => {
             products[item.ean] = item;
         });
+
+        displayData(products);
     }).catch(e => {
         alert("An error occurred while processing XML file");
         console.log("XML reading Failed: ", e);
     });
 }
 
-function displayData(data) {
+function displayData(filteredProducts) {
     const $table = $('.product-table-body');
 
-    data['Catalog'].item.forEach((item) => {
+    $table.empty();
+
+    Object.keys(filteredProducts).forEach((key) => {
         const $button = $('<button class="btn btn-secondary">buy</button>');
         const $buttonTd = $('<td>');
         const $imageTd = $('<td>');
 
-        $button.on('click', addToCard(item.ean));
+        $button.on('click', addToCard(filteredProducts[key].ean));
         $buttonTd.append($button);
 
-        const $image = $(`<img class="row-image" src="${imageLink}${item.art}">`);
-        $imageTd.append($image)
+        const $image = $(`<img class="row-image" src="${imageLink}${filteredProducts[key].art}">`);
+        $imageTd.append($image);
 
         const $tr = $('<tr>').append(
             $imageTd,
-            $('<td>').html(item.name),
-            $('<td>').text(item.size),
-            $('<td>').text(item.art),
-            $('<td>').text(item.ostatok),
-            $('<td>').text(item.price),
+            $('<td>').html(filteredProducts[key].name),
+            $('<td>').text(filteredProducts[key].size),
+            $('<td>').text(filteredProducts[key].art),
+            $('<td>').text(filteredProducts[key].ostatok),
+            $('<td>').text(filteredProducts[key].price),
             $buttonTd
         );
 
-        $tr.attr('data-id', item.id);
+        $tr.attr('data-id', filteredProducts[key].id);
 
         $table.append($tr);
     });
@@ -183,21 +187,19 @@ function filterValues() {
     const $input = $('#search_field');
     const $tr = $('tbody tr');
 
-    const filter = $input[0].value.toUpperCase();
-    console.log(filter);
+    const filter = $input[0].value.toLowerCase();
 
-    $tr.each((index, $item) => {
-        const itemName = $item.getElementsByTagName("td")[0]; //Fetching Name element of a table
-        if (itemName) {
-            const txtValue = itemName.textContent || itemName.innerText || itemName.innerHTML;
+    const filtered = Object.keys(products)
+        .filter((key) => {
+            return products[key].name.toLowerCase().includes(filter) || products[key].art.includes(filter);
+        })
+        .reduce((obj, key) => {
+            obj[key] = products[key];
 
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                $item.style.display = "";
-            } else {
-                $item.style.display = "none";
-            }
-        }
-    });
+            return obj;
+        }, {});
+
+    displayData(filtered);
 }
 
 function sendOrder() {
